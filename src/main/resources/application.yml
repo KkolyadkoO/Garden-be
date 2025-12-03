@@ -1,0 +1,5 @@
+security:
+  jwt:
+    secret: "super_secret_key_123"
+    access-exp-hours: 2
+    refresh-exp-hours: 720
