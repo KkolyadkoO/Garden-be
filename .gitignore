@@ -13,6 +13,7 @@ target/
 .springBeans
 .sts4-cache
 .mvn
+uploads
 
 ### IntelliJ IDEA ###
 .idea
