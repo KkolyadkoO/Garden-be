@@ -21,12 +21,14 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getProfile() {
-        return ResponseEntity.ok(userService.getProfile());
+        var result = userService.getProfile();
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserProfileResponse> updateProfile(UpdateProfileRequest request) {
-        return ResponseEntity.ok(userService.updateProfile(request));
+    public ResponseEntity<Void> updateProfile(UpdateProfileRequest request) {
+        userService.updateProfile(request);
+        return ResponseEntity.ok().build();
     }
 }
 

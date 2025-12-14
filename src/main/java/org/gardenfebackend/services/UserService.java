@@ -43,7 +43,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfileResponse updateProfile(UpdateProfileRequest request) {
+    public void updateProfile(UpdateProfileRequest request) {
         User user = getCurrentUser();
 
         if (request.getFullName() != null) {
@@ -52,23 +52,27 @@ public class UserService {
 
         MultipartFile profilePhoto = request.getProfilePhoto();
         if (profilePhoto != null && !profilePhoto.isEmpty()) {
-            String avatarUrl = saveAvatar(profilePhoto);
+            String avatarUrl = saveAvatar(profilePhoto, user.getProfilePhotoUrl());
             user.setProfilePhotoUrl(avatarUrl);
         }
 
-        User saved = userRepository.save(user);
-
-        return new UserProfileResponse(
-                saved.getEmail(),
-                saved.getFullName(),
-                saved.getProfilePhotoUrl()
-        );
+        userRepository.save(user);
     }
 
-    private String saveAvatar(MultipartFile file) {
+    private String saveAvatar(MultipartFile file, String oldPhotoUrl) {
         try {
             Path uploadDir = Paths.get(AVATAR_UPLOAD_DIR);
             Files.createDirectories(uploadDir);
+
+            if (oldPhotoUrl != null && !oldPhotoUrl.isBlank()) {
+                String oldFileName = Paths.get(oldPhotoUrl).getFileName().toString();
+                Path oldFilePath = uploadDir.resolve(oldFileName);
+                try {
+                    Files.deleteIfExists(oldFilePath);
+                } catch (IOException ex) {
+                    System.err.println("Не удалось удалить старый аватар: " + oldFilePath);
+                }
+            }
 
             String originalFilename = file.getOriginalFilename();
             String extension = "";
@@ -81,7 +85,6 @@ public class UserService {
 
             Files.copy(file.getInputStream(), target);
 
-            // URL по которому можно получить файл
             return "/files/avatars/" + fileName;
         } catch (IOException e) {
             throw new RuntimeException("Не удалось сохранить файл аватара", e);
