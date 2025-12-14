@@ -22,7 +22,7 @@ public class Plant {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = org.gardenfebackend.converters.PlantTypeAttributeConverter.class)
     @Column(nullable = false)
     private PlantType type;
 
