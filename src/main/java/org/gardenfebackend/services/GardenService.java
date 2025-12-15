@@ -78,22 +78,18 @@ public class GardenService {
         Plant plant = plantRepository.findById(request.getPlantId())
                 .orElseThrow(() -> new RuntimeException("Растение с ID " + request.getPlantId() + " не найдено"));
 
-        // Проверка границ
         validateCoordinates(garden.getType(), request.getX(), request.getY());
 
-        // Проверяем, есть ли уже растение в этой клетке
         PlantedPlant existingPlant = plantedPlantRepository.findByGardenAndXAndY(garden, request.getX(), request.getY())
                 .orElse(null);
 
         java.time.LocalDate currentDate = java.time.LocalDate.now();
         
         if (existingPlant != null) {
-            // Заменяем существующее растение
             existingPlant.setPlant(plant);
             existingPlant.setPlantedDate(currentDate);
             plantedPlantRepository.save(existingPlant);
         } else {
-            // Создаём новое
             PlantedPlant plantedPlant = PlantedPlant.builder()
                     .garden(garden)
                     .x(request.getX())
@@ -123,19 +119,16 @@ public class GardenService {
         Garden garden = gardenRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new RuntimeException("Огород с ID " + id + " не найден"));
 
-        // Удаляем все посаженные растения
         plantedPlantRepository.deleteByGarden(garden);
         gardenRepository.delete(garden);
     }
 
     private void validateCoordinates(GardenType type, Integer x, Integer y) {
         if (type == GardenType.PLOT) {
-            // Участок: 8x9 (x: 0-7, y: 0-8)
             if (x < 0 || x >= 8 || y < 0 || y >= 9) {
                 throw new IllegalArgumentException("Координаты выходят за границы участка. Участок: 8x9 (x: 0-7, y: 0-8)");
             }
         } else if (type == GardenType.WINDOWSILL) {
-            // Подоконник: 1x8 (x: 0, y: 0-7)
             if (x != 0 || y < 0 || y >= 8) {
                 throw new IllegalArgumentException("Координаты выходят за границы подоконника. Подоконник: 1x8 (x: 0, y: 0-7)");
             }

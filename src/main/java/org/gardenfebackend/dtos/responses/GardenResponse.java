@@ -19,6 +19,6 @@ public class GardenResponse {
     private String name;
     private Integer width;
     private Integer height;
-    private Map<String, CellInfo> cells; // Ключ: "x,y", значение: информация о растении
+    private Map<String, CellInfo> cells;
 }
 

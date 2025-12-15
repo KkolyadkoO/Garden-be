@@ -47,22 +47,18 @@ public class CalendarService {
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
 
-        // Получаем все огороды пользователя
         List<Garden> gardens = gardenRepository.findByUser(user);
         List<PlantedPlant> allPlantedPlants = new ArrayList<>();
         for (Garden garden : gardens) {
             allPlantedPlants.addAll(plantedPlantRepository.findByGarden(garden));
         }
 
-        // Создаем карту для группировки задач по дням
         Map<LocalDate, List<CalendarTask>> tasksByDate = new HashMap<>();
 
-        // Инициализируем все дни месяца пустыми списками
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             tasksByDate.put(date, new ArrayList<>());
         }
 
-        // Рассчитываем дни полива для каждого растения
         for (PlantedPlant plantedPlant : allPlantedPlants) {
             LocalDate plantedDate = plantedPlant.getPlantedDate();
             Integer wateringDays = plantedPlant.getPlant().getWateringDays();
@@ -71,11 +67,9 @@ public class CalendarService {
                 continue;
             }
 
-            // Рассчитываем все дни полива до конца месяца
             LocalDate nextWateringDate = plantedDate;
             while (!nextWateringDate.isAfter(endDate)) {
                 if (!nextWateringDate.isBefore(startDate)) {
-                    // Этот день попадает в запрашиваемый месяц
                     CalendarTask task = createCalendarTask(plantedPlant);
                     tasksByDate.get(nextWateringDate).add(task);
                 }
@@ -83,7 +77,6 @@ public class CalendarService {
             }
         }
 
-        // Преобразуем в список DayTasks
         List<DayTasks> dayTasksList = tasksByDate.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(entry -> new DayTasks(entry.getKey(), entry.getValue()))
@@ -109,7 +102,6 @@ public class CalendarService {
                 continue;
             }
 
-            // Проверяем, является ли запрашиваемая дата днем полива
             if (isWateringDay(plantedDate, date, wateringDays)) {
                 CalendarTask task = createCalendarTask(plantedPlant);
                 tasks.add(task);

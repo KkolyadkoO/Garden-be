@@ -70,7 +70,6 @@ public class AuthService {
         RefreshToken token = refreshTokenService.validateRefreshToken(request.getRefreshToken());
         User user = token.getUser();
 
-        // вращаем refresh-токен: текущий помечаем как отозванный и создаём новый
         refreshTokenService.revokeRefreshToken(token.getToken());
         RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
 
@@ -80,7 +79,6 @@ public class AuthService {
 
     @Transactional
     public void logout(RefreshTokenRequest request) {
-        // можно отозвать конкретный refresh-токен
         refreshTokenService.revokeRefreshToken(request.getRefreshToken());
     }
 }

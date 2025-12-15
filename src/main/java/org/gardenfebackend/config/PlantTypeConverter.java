@@ -13,10 +13,8 @@ public class PlantTypeConverter implements Converter<String, PlantType> {
             return null;
         }
         try {
-            // Пробуем найти enum по точному совпадению
             return PlantType.valueOf(source.trim());
         } catch (IllegalArgumentException e) {
-            // Если не найдено, пробуем найти без учета регистра
             for (PlantType type : PlantType.values()) {
                 if (type.name().equalsIgnoreCase(source.trim())) {
                     return type;

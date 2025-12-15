@@ -93,11 +93,9 @@ public class AdviceService {
         Advice advice = adviceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Совет с ID " + id + " не найден"));
         
-        // Удаляем все связи с избранным для этого совета
         List<UserFavoriteAdvice> favorites = userFavoriteAdviceRepository.findByAdvice(advice);
         userFavoriteAdviceRepository.deleteAll(favorites);
         
-        // Удаляем фото, если оно существует
         if (advice.getPhotoUrl() != null && !advice.getPhotoUrl().isBlank()) {
             deleteAdvicePhoto(advice.getPhotoUrl());
         }
@@ -111,7 +109,6 @@ public class AdviceService {
         Advice advice = adviceRepository.findById(adviceId)
                 .orElseThrow(() -> new RuntimeException("Совет с ID " + adviceId + " не найден"));
 
-        // Проверяем, не добавлен ли уже в избранное
         userFavoriteAdviceRepository.findByUserAndAdvice(user, advice)
                 .ifPresent(favorite -> {
                     throw new IllegalArgumentException("Совет уже добавлен в избранное");

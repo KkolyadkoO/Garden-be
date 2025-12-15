@@ -15,7 +15,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Отдаём файлы из папки "uploads" по URL /files/**
         registry.addResourceHandler("/files/**")
                 .addResourceLocations("file:uploads/");
     }

@@ -12,7 +12,6 @@ public class PlantTypeAttributeConverter implements AttributeConverter<PlantType
         if (attribute == null) {
             return null;
         }
-        // Преобразуем в верхний регистр для БД
         return attribute.name().toUpperCase();
     }
 
@@ -22,10 +21,8 @@ public class PlantTypeAttributeConverter implements AttributeConverter<PlantType
             return null;
         }
         try {
-            // Пробуем найти enum по точному совпадению (верхний регистр)
             return PlantType.valueOf(dbData.toUpperCase().trim());
         } catch (IllegalArgumentException e) {
-            // Если не найдено, пробуем найти без учета регистра
             for (PlantType type : PlantType.values()) {
                 if (type.name().equalsIgnoreCase(dbData.trim())) {
                     return type;
