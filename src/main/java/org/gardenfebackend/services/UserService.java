@@ -39,7 +39,8 @@ public class UserService {
         return new UserProfileResponse(
                 user.getEmail(),
                 user.getFullName(),
-                user.getProfilePhotoUrl()
+                user.getProfilePhotoUrl(),
+                user.getRole().toString()
         );
     }
 
