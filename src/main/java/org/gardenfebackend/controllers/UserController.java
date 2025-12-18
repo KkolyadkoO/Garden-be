@@ -1,16 +1,13 @@
 package org.gardenfebackend.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.gardenfebackend.dtos.requests.CheckEmailRequest;
 import org.gardenfebackend.dtos.requests.UpdateProfileRequest;
 import org.gardenfebackend.dtos.responses.UserProfileResponse;
 import org.gardenfebackend.services.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,6 +26,12 @@ public class UserController {
     public ResponseEntity<Void> updateProfile(UpdateProfileRequest request) {
         userService.updateProfile(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestBody CheckEmailRequest request) {
+        boolean exists = userService.existsByEmail(request);
+        return ResponseEntity.ok(exists);
     }
 }
 

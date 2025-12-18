@@ -81,4 +81,13 @@ public class AuthService {
     public void logout(RefreshTokenRequest request) {
         refreshTokenService.revokeRefreshToken(request.getRefreshToken());
     }
+
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) {
+        if (email == null) {
+            return false;
+        }
+        String normalizedEmail = email.trim().toLowerCase();
+        return userRepository.findByEmail(normalizedEmail).isPresent();
+    }
 }

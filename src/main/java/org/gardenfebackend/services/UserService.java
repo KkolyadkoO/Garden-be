@@ -1,6 +1,7 @@
 package org.gardenfebackend.services;
 
 import lombok.RequiredArgsConstructor;
+import org.gardenfebackend.dtos.requests.CheckEmailRequest;
 import org.gardenfebackend.dtos.requests.UpdateProfileRequest;
 import org.gardenfebackend.dtos.responses.UserProfileResponse;
 import org.gardenfebackend.models.User;
@@ -40,6 +41,11 @@ public class UserService {
                 user.getFullName(),
                 user.getProfilePhotoUrl()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(CheckEmailRequest request) {
+        return userRepository.findByEmail(request.getEmail()).isPresent();
     }
 
     @Transactional

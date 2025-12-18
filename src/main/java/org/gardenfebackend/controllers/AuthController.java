@@ -3,6 +3,7 @@ package org.gardenfebackend.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.gardenfebackend.dtos.requests.AuthRequest;
+import org.gardenfebackend.dtos.requests.CheckEmailRequest;
 import org.gardenfebackend.dtos.requests.RefreshTokenRequest;
 import org.gardenfebackend.dtos.requests.RegisterRequest;
 import org.gardenfebackend.dtos.responses.AuthResponse;
@@ -39,5 +40,11 @@ public class AuthController {
     public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
         authService.logout(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@Valid @RequestBody CheckEmailRequest request) {
+        boolean exists = authService.existsByEmail(request.getEmail());
+        return ResponseEntity.ok(exists);
     }
 }
