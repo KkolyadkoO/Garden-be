@@ -4,12 +4,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.gardenfebackend.dtos.requests.CreateGardenRequest;
 import org.gardenfebackend.dtos.requests.PlantPlantRequest;
+import org.gardenfebackend.dtos.responses.EnumOptionResponse;
 import org.gardenfebackend.dtos.responses.GardenResponse;
+import org.gardenfebackend.enums.GardenType;
 import org.gardenfebackend.services.GardenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +33,14 @@ public class GardenController {
     public ResponseEntity<List<GardenResponse>> getAll() {
         List<GardenResponse> response = gardenService.getAll();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/types")
+    public ResponseEntity<List<EnumOptionResponse>> getGardenTypes() {
+        List<EnumOptionResponse> types = Arrays.stream(GardenType.values())
+                .map(type -> new EnumOptionResponse(type.name(), type.getLabelRu()))
+                .toList();
+        return ResponseEntity.ok(types);
     }
 
     @GetMapping("/{id}")

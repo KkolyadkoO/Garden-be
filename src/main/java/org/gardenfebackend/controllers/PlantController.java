@@ -4,7 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.gardenfebackend.dtos.requests.CreatePlantRequest;
 import org.gardenfebackend.dtos.requests.UpdatePlantRequest;
+import org.gardenfebackend.dtos.responses.EnumOptionResponse;
 import org.gardenfebackend.dtos.responses.PlantResponse;
+import org.gardenfebackend.enums.PlantType;
 import org.gardenfebackend.enums.UserRole;
 import org.gardenfebackend.models.User;
 import org.gardenfebackend.services.PlantService;
@@ -15,6 +17,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,6 +50,14 @@ public class PlantController {
     public ResponseEntity<List<PlantResponse>> getByIsVerified(@PathVariable boolean isVerified) {
         List<PlantResponse> response = plantService.getByIsVerified(isVerified);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/types")
+    public ResponseEntity<List<EnumOptionResponse>> getPlantTypes() {
+        List<EnumOptionResponse> types = Arrays.stream(PlantType.values())
+                .map(type -> new EnumOptionResponse(type.name(), type.getLabelRu()))
+                .toList();
+        return ResponseEntity.ok(types);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
