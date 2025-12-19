@@ -58,7 +58,7 @@ public class WeatherService {
             OpenWeatherResponse.Weather weather = weatherData.getWeather().get(0);
             String weatherMain = weather.getMain();
             String weatherName = translateWeather(weatherMain);
-            String photoUrl = "/files/weather/" + weatherMain + ".png";
+            String photoUrl = "/uploads/weather/" + weatherMain + ".png";
 
             Double dayTemperature = weatherData.getMain() != null ? weatherData.getMain().getTempMax() : null;
             Double nightTemperature = weatherData.getMain() != null ? weatherData.getMain().getTempMin() : null;
