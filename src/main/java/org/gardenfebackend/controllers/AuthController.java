@@ -2,6 +2,7 @@ package org.gardenfebackend.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.gardenfebackend.dtos.requests.*;
 import org.gardenfebackend.converters.TelegramAuthUtils;
 import org.gardenfebackend.dtos.TelegramAuthRequest;
 import org.gardenfebackend.dtos.requests.AuthRequest;
@@ -53,9 +54,8 @@ public class AuthController {
     }
 
     @PostMapping("/google-mobile")
-    public ResponseEntity<AuthResponse> googleMobileLogin(@RequestBody Map<String, String> body) {
-        String idToken = body.get("idToken");
-        AuthResponse response = authService.googleMobileLogin(idToken);
+    public ResponseEntity<AuthResponse> googleMobileLogin(@RequestBody GoogleLoginRequest request) {
+        AuthResponse response = authService.googleMobileLogin(request.getIdToken());
         return ResponseEntity.ok(response);
     }
 
