@@ -90,4 +90,36 @@ public class AuthService {
         String normalizedEmail = email.trim().toLowerCase();
         return userRepository.findByEmail(normalizedEmail).isPresent();
     }
+
+    @Transactional
+    public AuthResponse googleMobileLogin(String idTokenString) {
+        var payload = jwtService.verifyGoogleToken(idTokenString);
+        String email = payload.getEmail();
+        String name = (String) payload.get("name");
+        String picture = (String) payload.get("picture");
+
+        User user = userRepository.findByEmail(email.toLowerCase())
+                .map(existing -> {
+                    if (existing.getFullName() == null && name != null)
+                        existing.setFullName(name);
+                    if ((existing.getProfilePhotoUrl() == null || existing.getProfilePhotoUrl().isEmpty()) && picture != null)
+                        existing.setProfilePhotoUrl(picture);
+                    return userRepository.save(existing);
+                })
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                            .email(email.toLowerCase())
+                            .fullName(name)
+                            .profilePhotoUrl(picture)
+                            .password("NO_PASSWORD_GOOGLE")
+                            .role(UserRole.USER)
+                            .build();
+                    return userRepository.save(newUser);
+                });
+
+        String accessToken = jwtService.generateAccessToken(user);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+
+        return new AuthResponse(accessToken, refreshToken.getToken());
+    }
 }

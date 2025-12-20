@@ -1,5 +1,6 @@
 package org.gardenfebackend.security;
 
+import com.google.api.client.json.gson.GsonFactory;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,12 +10,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
@@ -31,6 +37,9 @@ public class JwtService {
 
     @Value("${security.jwt.refresh-exp-hours}")
     private long refreshExpHours;
+
+    @Value("${spring.security.google.client-id}")
+    private String googleClientId;
 
     public String generateAccessToken(UserDetails userDetails) {
         return buildToken(userDetails, accessExpHours, Map.of());
@@ -96,6 +105,25 @@ public class JwtService {
             return Keys.hmacShaKeyFor(keyBytes);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Не удалось инициализировать JWT ключ", e);
+        }
+    }
+
+    public GoogleIdToken.Payload verifyGoogleToken(String idTokenString) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    new NetHttpTransport(),
+                    GsonFactory.getDefaultInstance()
+            )
+                    .setAudience(Collections.singletonList(googleClientId))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken == null) {
+                throw new IllegalArgumentException("Invalid ID token");
+            }
+            return idToken.getPayload();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to verify Google ID token", e);
         }
     }
 }
