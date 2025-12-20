@@ -71,13 +71,18 @@ public class UserService {
             Path uploadDir = Paths.get(AVATAR_UPLOAD_DIR);
             Files.createDirectories(uploadDir);
 
-            if (oldPhotoUrl != null && !oldPhotoUrl.isBlank()) {
-                String oldFileName = Paths.get(oldPhotoUrl).getFileName().toString();
-                Path oldFilePath = uploadDir.resolve(oldFileName);
-                try {
-                    Files.deleteIfExists(oldFilePath);
-                } catch (IOException ex) {
-                    System.err.println("Не удалось удалить старый аватар: " + oldFilePath);
+            if (oldPhotoUrl != null
+                    && !oldPhotoUrl.isBlank()
+                    && !oldPhotoUrl.startsWith("http://")
+                    && !oldPhotoUrl.startsWith("https://")) {
+
+                Path oldFilePath = uploadDir.resolve(Paths.get(oldPhotoUrl).getFileName().toString());
+                if (Files.exists(oldFilePath)) {
+                    try {
+                        Files.delete(oldFilePath);
+                    } catch (IOException ex) {
+                        System.err.println("Не удалось удалить старый аватар: " + oldFilePath);
+                    }
                 }
             }
 

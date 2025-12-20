@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -46,5 +48,12 @@ public class AuthController {
     public ResponseEntity<Boolean> checkEmail(@Valid @RequestBody CheckEmailRequest request) {
         boolean exists = authService.existsByEmail(request.getEmail());
         return ResponseEntity.ok(exists);
+    }
+
+    @PostMapping("/google-mobile")
+    public ResponseEntity<AuthResponse> googleMobileLogin(@RequestBody Map<String, String> body) {
+        String idToken = body.get("idToken");
+        AuthResponse response = authService.googleMobileLogin(idToken);
+        return ResponseEntity.ok(response);
     }
 }
