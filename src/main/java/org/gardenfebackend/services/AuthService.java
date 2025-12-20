@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -116,6 +118,39 @@ public class AuthService {
                             .build();
                     return userRepository.save(newUser);
                 });
+
+        String accessToken = jwtService.generateAccessToken(user);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+
+        return new AuthResponse(accessToken, refreshToken.getToken());
+    }
+
+    @Transactional
+    public AuthResponse telegramLogin(Map<String, String> telegramData) {
+        if (!jwtService.verifyTelegramAuth(telegramData)) {
+            throw new IllegalArgumentException("Invalid Telegram data");
+        }
+
+        String telegramId = telegramData.get("id");
+        String username = telegramData.get("username");
+        String firstName = telegramData.get("first_name");
+        String lastName = telegramData.get("last_name");
+        String photoUrl = telegramData.get("photo_url");
+        String displayName = (firstName != null ? firstName : "")
+                + (lastName != null ? " " + lastName : "");
+
+        String pseudoEmail = telegramId + "@telegram.user";
+
+        User user = userRepository.findByEmail(pseudoEmail)
+                .orElseGet(() -> userRepository.save(
+                        User.builder()
+                                .email(pseudoEmail)
+                                .fullName(displayName.strip())
+                                .profilePhotoUrl(photoUrl)
+                                .password("NO_PASSWORD_TELEGRAM")
+                                .role(UserRole.USER)
+                                .build()
+                ));
 
         String accessToken = jwtService.generateAccessToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
