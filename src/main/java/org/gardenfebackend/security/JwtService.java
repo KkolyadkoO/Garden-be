@@ -14,6 +14,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.MessageDigest;
@@ -23,6 +25,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 
 @Service
@@ -40,6 +43,10 @@ public class JwtService {
 
     @Value("${spring.security.google.client-id}")
     private String googleClientId;
+
+    @Value("${telegram.bot.token}")
+    private String botToken;
+
 
     public String generateAccessToken(UserDetails userDetails) {
         return buildToken(userDetails, accessExpHours, Map.of());
@@ -125,6 +132,47 @@ public class JwtService {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to verify Google ID token", e);
         }
+    }
+
+    public boolean verifyTelegramAuth(Map<String, String> data) {
+        try {
+            String receivedHash = data.get("hash");
+            if (receivedHash == null)
+                return false;
+
+            Map<String, String> sorted = new TreeMap<>(data);
+            sorted.remove("hash");
+
+            StringBuilder dataCheck = new StringBuilder();
+            for (Map.Entry<String, String> entry : sorted.entrySet()) {
+                dataCheck.append(entry.getKey())
+                        .append("=")
+                        .append(entry.getValue())
+                        .append("\n");
+            }
+            if (dataCheck.length() > 0)
+                dataCheck.deleteCharAt(dataCheck.length() - 1);
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] secretKey = digest.digest(botToken.getBytes(StandardCharsets.UTF_8));
+
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(secretKey, "HmacSHA256"));
+
+            byte[] hash = mac.doFinal(dataCheck.toString().getBytes(StandardCharsets.UTF_8));
+            String computed = bytesToHex(hash);
+
+            return computed.equalsIgnoreCase(receivedHash);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes)
+            sb.append(String.format("%02x", b));
+        return sb.toString();
     }
 }
 
