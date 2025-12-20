@@ -2,10 +2,7 @@ package org.gardenfebackend.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.gardenfebackend.dtos.requests.AuthRequest;
-import org.gardenfebackend.dtos.requests.CheckEmailRequest;
-import org.gardenfebackend.dtos.requests.RefreshTokenRequest;
-import org.gardenfebackend.dtos.requests.RegisterRequest;
+import org.gardenfebackend.dtos.requests.*;
 import org.gardenfebackend.dtos.responses.AuthResponse;
 import org.gardenfebackend.services.AuthService;
 import org.springframework.http.ResponseEntity;
@@ -51,9 +48,8 @@ public class AuthController {
     }
 
     @PostMapping("/google-mobile")
-    public ResponseEntity<AuthResponse> googleMobileLogin(@RequestBody Map<String, String> body) {
-        String idToken = body.get("idToken");
-        AuthResponse response = authService.googleMobileLogin(idToken);
+    public ResponseEntity<AuthResponse> googleMobileLogin(@RequestBody GoogleLoginRequest request) {
+        AuthResponse response = authService.googleMobileLogin(request.getIdToken());
         return ResponseEntity.ok(response);
     }
 }
