@@ -1,11 +1,11 @@
 package org.gardenfebackend.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,5 +29,12 @@ public class Advice {
 
     @Column(columnDefinition = "text", nullable = false)
     private String description;
+
+    @OneToMany(mappedBy = "advice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    @JsonManagedReference
+    private List<AdviceComment> comments = new ArrayList<>();
 }
 
