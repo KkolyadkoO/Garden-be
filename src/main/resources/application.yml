@@ -3,3 +3,10 @@ security:
     secret: "super_secret_key_123"
     access-exp-hours: 2
     refresh-exp-hours: 720
+
+spring:
+  security:
+    google:
+      #      client-id: 407408718192.apps.googleusercontent.com
+      client-id: ---------.apps.googleusercontent.com
+      secret-id: ---------------.apps.googleusercontent.com

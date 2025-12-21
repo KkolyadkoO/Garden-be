@@ -2,6 +2,9 @@ package org.gardenfebackend.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.gardenfebackend.dtos.requests.*;
+import org.gardenfebackend.converters.TelegramAuthUtils;
+import org.gardenfebackend.dtos.TelegramAuthRequest;
 import org.gardenfebackend.dtos.requests.AuthRequest;
 import org.gardenfebackend.dtos.requests.CheckEmailRequest;
 import org.gardenfebackend.dtos.requests.RefreshTokenRequest;
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -46,5 +51,18 @@ public class AuthController {
     public ResponseEntity<Boolean> checkEmail(@Valid @RequestBody CheckEmailRequest request) {
         boolean exists = authService.existsByEmail(request.getEmail());
         return ResponseEntity.ok(exists);
+    }
+
+    @PostMapping("/google-mobile")
+    public ResponseEntity<AuthResponse> googleMobileLogin(@RequestBody GoogleLoginRequest request) {
+        AuthResponse response = authService.googleMobileLogin(request.getIdToken());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/telegram")
+    public ResponseEntity<AuthResponse> telegramLogin(@RequestBody @Valid TelegramAuthRequest request) {
+        Map<String, String> telegramData = TelegramAuthUtils.decodeBase64JsonToMap(request.getTgAuthResult());
+        AuthResponse response = authService.telegramLogin(telegramData);
+        return ResponseEntity.ok(response);
     }
 }
